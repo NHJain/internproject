@@ -24,10 +24,10 @@ https://github.com/NHJain/internproject
      - touch webpack.config.js
      - touch .babelrc
      - npm install
-  7. Copy and paste below given data in .babelrc file
-        {
-            "presets" : ["es2015", "react"]
-        }
+  7. Copy and paste below given data in .babelrc file__
+        {__
+            "presets" : ["es2015", "react"]__
+        }__
   8. Go ahead now and  run the commands in the following order
       - npm run build
       - nodemon index.js
