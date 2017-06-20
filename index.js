@@ -58,7 +58,7 @@ app.post('/stopInstance', function (req, res) {
 app.post('/creatLog', function (req, res) {
     service.creatLog(req, res);
 });
-
+   
 //Port on which the pplication is listening
 app.listen(port)
 console.log("server started on port " + port)
