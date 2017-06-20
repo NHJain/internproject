@@ -25,8 +25,8 @@ https://github.com/NHJain/internproject
      - touch .babelrc
      - npm install
   7. Copy and paste below given data in .babelrc file <br />
-        {
-            "presets" : ["es2015", "react"]
+        { <br />
+            "presets" : ["es2015", "react"] <br />
         }
   8. Go ahead now and  run the commands in the following order
       - npm run build
