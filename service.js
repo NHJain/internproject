@@ -22,6 +22,22 @@ module.exports = {
         });
     },
 
+    getDataSetList: function (req, res) {
+        db.cypherQuery('MATCH (n:DataSet) return n', function (err, result) {
+            res.json(result.data);
+        });
+    },
+
+    datasetReader: function (req, res) {
+        avro.createFileDecoder('./twitter.avro')
+            .on('metadata', function (type) {
+                res.json(type);
+            })
+            .on('data', function (record) {
+                console.log(record);
+            })
+    },
+
     getAllEnvironment: function (req, res) {
         db.cypherQuery('MATCH (n:Environment) return n', function (err, result) {
             res.json(result.data);

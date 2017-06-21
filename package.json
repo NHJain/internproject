@@ -25,6 +25,8 @@
     "webpack-dev-server": "^2.4.5"
   },
   "dependencies": {
+    "avro-js": "^1.8.2",
+    "avsc": "^5.0.4",
     "babel-core": "^6.24.1",
     "babel-loader": "^6.4.1",
     "babel-preset-es2015": "^6.24.1",
@@ -33,6 +35,7 @@
     "browserify": "^14.4.0",
     "classnames": "^2.2.5",
     "express": "^4.15.3",
+    "fs": "0.0.1-security",
     "guid": "0.0.12",
     "gulp": "^3.9.1",
     "history": "^3.0.0",
@@ -40,12 +43,18 @@
     "morgan": "*",
     "neo4j": "^2.0.0-RC2",
     "neo4j-driver": "*",
-    "react": "^15.5.4",
-    "react-dom": "^15.5.4",
+    "prop-types": "^15.5.10",
+    "react": "^15.3.2",
+    "react-dom": "15.3.2",
     "react-dropdown": "^1.2.5",
+    "react-file-input": "^0.2.5",
+    "react-file-reader-input": "^1.1.0",
     "react-popup": "^0.8.0",
+    "react-redux": "^5.0.5",
     "react-router": "^2.8.1",
+    "react-split-pane": "^0.1.63",
     "reactify": "^1.1.1",
+    "redux": "^3.7.0",
     "swagger-jsdoc": "^1.3.0",
     "vinyl-source-stream": "^1.1.0"
   }
