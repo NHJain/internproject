@@ -11,7 +11,6 @@ app.use(bodyParser.urlencoded({
     extended: true
 }));
 app.use(bodyParser.json());
-var dateFormat = require('dateformat');
 var service = require('./service');
 // serve static assets normally
 app.use(express.static(__dirname + '/public'))
@@ -23,8 +22,8 @@ db = new neo4j('http://neo4j:Neo4j@0.0.0.0:7474');
     response.sendFile(path.resolve(__dirname, 'public', 'index.html'))
 });*/
 
-app.post('/datasetReader', function (req, res) {
-    service.datasetReader(req, res);
+app.post('/getDataSetList', function (req, res) {
+    service.getDataSetList(req, res);
 });
 
 app.post('/dataSetNodeCreater', function (req, res) {

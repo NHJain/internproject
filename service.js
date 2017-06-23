@@ -1,8 +1,10 @@
 var fs = require("fs");
 var avro = require('avro-js');
 var file = require("file");
+var dateFormat = require('dateformat');
+var lastRunDate = new Date('2013-05-23');
 var scanTime = 0;
-var date = [];
+var fileList = [];
 // 'module.exports' is a node.JS specific feature, it does not work with regular JavaScript
 module.exports = {
     // This is the function which will be called in the main file, which is server.js
@@ -34,16 +36,21 @@ module.exports = {
     },
 
     dataSetNodeCreater: function (req, res) {
-        var fileList = [];
+        fileList = [];
         file.walkSync("./avroFiles", function (start, dirs, names) {
             /*fileList.push(file.path.abspath("./" + start + "/" + names));*/
             fileList.push({
                 FileName: "" + names,
-                path: "./" + start + "/" + names
+                path: "./" + start + "/" + names,
+                time: "",
+                size: ""
             });
         });
         fileList.reverse().pop();
+        console.log("Last Run Time :" + lastRunDate);
         getFileDetails(fileList);
+        makeNodeForAFile(fileList);
+        lastRunDate = new Date();
         res.json(fileList);
 
         /* 
@@ -99,6 +106,7 @@ module.exports = {
 
     createProcessInstance: function (req, res) {
         var dateTime = new Date();
+        var dateTime = dateFormat(dateTime, "ddd mmm d yyyy HH:MM:ss o (Z)");
         db.insertNode({
             ProcessName: req.body.ProcessName,
             StartTime: dateTime,
@@ -148,19 +156,41 @@ module.exports = {
     }
 };
 
+function makeNodeForAFile(fileList) {
+    var query = "create";
+    var flag = false;
+    for(i = 0; i < fileList.length; i++){
+        var date = new Date(fileList[i].time);
+        if(date>lastRunDate){
+            flag = true;
+            //query += "(:DataSet" + JSON.stringify(fileList[i]) + ")";
+            query += " (:DataSet {Name : '"+fileList[i].FileName+"', path : '"+fileList[i].path+"', time : '"+fileList[i].time+"' , size: '"+fileList[i].size+"'}),"
+        }
+
+/*        create
+(:BusinessUnit {Name : 'Media Operations'}),
+(:BusinessUnit {Name : 'Media Analytics - AT'}),
+(:BusinessUnit {Name : 'Media Analytics - KBB'}),
+(:BusinessUnit {Name : 'Media-Analytics - DDC'})*/
+        //console.log(new Date().getMilliseconds());
+    }
+    if(flag){
+        query = query.substring(0, query.length - 1);
+        db.cypherQuery(query, function (err, result) {
+            console.log(err);
+        });
+    }
+}
+
 function getFileDetails(fileList) {
     for (i = 0; i < fileList.length; i++) {
         var fileName = fileList[i].path;
-        fs.exists(fileName, function (exists) {
-            if (exists) {
-                var x = fs.statSync(fileName);
-            }
-            console.log(x.birthtime);
-            
-        });
-
+        if (fs.existsSync(fileName)) {
+            var stats = fs.statSync(fileName);
+        }
+        fileList[i].time = stats.birthtime;
+        fileList[i].size = stats.size;
     }
-
 }
 
 function getProcessId(result) {

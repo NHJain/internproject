@@ -71,7 +71,7 @@ class About extends Component {
         var data={DataSetName:event.target.key}
         $.ajax({
             async: "false",
-            url: "http://localhost:3001/getMetaData",
+            url: "http://localhost:3001/getDataSetList",
             dataType: 'json',
             data: data,
             type: 'POST',
