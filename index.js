@@ -4,6 +4,7 @@ const port = process.env.PORT || 3001
 const app = express()
 var bodyParser = require('body-parser');
 var avro = require('avro-js');
+var fs = require("fs");
 
 
 app.use(bodyParser.urlencoded({
@@ -26,12 +27,16 @@ app.post('/datasetReader', function (req, res) {
     service.datasetReader(req, res);
 });
 
+app.post('/dataSetNodeCreater', function (req, res) {
+    service.dataSetNodeCreater(req, res);
+});
+
 app.post('/getAllBUnit', function (req, res) {
     service.getAllBUnit(req, res);
 });
 
-app.post('/getDataSetList', function (req, res) {
-    service.getDataSetList(req, res);
+app.post('/getMetaData', function (req, res) {
+    service.getMetaData(req, res);
 });
 
 app.post('/getAllEnvironment', function (req, res) {

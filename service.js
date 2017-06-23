@@ -1,3 +1,8 @@
+var fs = require("fs");
+var avro = require('avro-js');
+var file = require("file");
+var scanTime = 0;
+var date = [];
 // 'module.exports' is a node.JS specific feature, it does not work with regular JavaScript
 module.exports = {
     // This is the function which will be called in the main file, which is server.js
@@ -28,8 +33,44 @@ module.exports = {
         });
     },
 
-    datasetReader: function (req, res) {
-        avro.createFileDecoder('./twitter.avro')
+    dataSetNodeCreater: function (req, res) {
+        var fileList = [];
+        file.walkSync("./avroFiles", function (start, dirs, names) {
+            /*fileList.push(file.path.abspath("./" + start + "/" + names));*/
+            fileList.push({
+                FileName: "" + names,
+                path: "./" + start + "/" + names
+            });
+        });
+        fileList.reverse().pop();
+        getFileDetails(fileList);
+        res.json(fileList);
+
+        /* 
+            var fileName = "./twitter.avro";
+
+                fs.exists(fileName, function (exists) {
+                    if (exists) {
+                        fs.stat(fileName, function (error, stats) {
+                            console.log(stats);
+                           fs.open(fileName, "r", function (error, fd) {
+                                var buffer = new Buffer(stats.size);
+
+                                fs.read(fd, buffer, 0, buffer.length, null, function (error, bytesRead, buffer) {
+                                    var data = buffer.toString("utf8", 0, buffer.length);
+
+                                    console.log(data);
+                                    fs.close(fd);
+                                });
+                            });
+                        });
+                    }
+                });
+                //code to get file details and save it to neo4j*/
+    },
+
+    getMetaData: function (req, res) {
+        avro.createFileDecoder('./avroFiles/FacebookAvro/twitter.avro')
             .on('metadata', function (type) {
                 res.json(type);
             })
@@ -106,6 +147,21 @@ module.exports = {
         });
     }
 };
+
+function getFileDetails(fileList) {
+    for (i = 0; i < fileList.length; i++) {
+        var fileName = fileList[i].path;
+        fs.exists(fileName, function (exists) {
+            if (exists) {
+                var x = fs.statSync(fileName);
+            }
+            console.log(x.birthtime);
+            
+        });
+
+    }
+
+}
 
 function getProcessId(result) {
     db.readNodesWithLabelsAndProperties('Process', {

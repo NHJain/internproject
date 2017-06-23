@@ -66,7 +66,7 @@
 
 	var _aboutComponent2 = _interopRequireDefault(_aboutComponent);
 
-	var _processDetailComponent = __webpack_require__(300);
+	var _processDetailComponent = __webpack_require__(299);
 
 	var _processDetailComponent2 = _interopRequireDefault(_processDetailComponent);
 
@@ -37756,10 +37756,6 @@
 
 	var _reactDropdown2 = _interopRequireDefault(_reactDropdown);
 
-	var _reactFileReaderInput = __webpack_require__(298);
-
-	var _reactFileReaderInput2 = _interopRequireDefault(_reactFileReaderInput);
-
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -37770,9 +37766,7 @@
 
 	var $ = __webpack_require__(237);
 	var classNames = __webpack_require__(297);
-	var FileInput = __webpack_require__(299);
-	//var avro = require('avro-js');
-	//const avro = require('avsc');
+	var FileInput = __webpack_require__(298);
 
 	var dataSetList = [];
 	//---------------------------------------------
@@ -37846,7 +37840,6 @@
 	                var text = reader.result;
 	                console.log(text);
 	            };
-	            //this.setState({ files: mapFiles(fileToPlainObject, files) });
 	        }
 	    }, {
 	        key: 'handleInputChange',
@@ -37856,6 +37849,22 @@
 	            var state = this.state;
 	            state[name] = e.target.value;
 	            this.setState(state);
+	            var data = { DataSetName: event.target.key };
+	            $.ajax({
+	                async: "false",
+	                url: "http://localhost:3001/getMetaData",
+	                dataType: 'json',
+	                data: data,
+	                type: 'POST',
+	                contentType: 'application/json',
+	                success: function success(data) {
+	                    for (var i = 0; i < data.length; i++) {
+	                        dataSetList[i] = data[i].Name;
+	                    }
+	                    self.setState({ dataSetFlag: true });
+	                    console.log(dataSetList);
+	                }
+	            });
 	        }
 	    }, {
 	        key: 'handleDrag',
@@ -37882,18 +37891,6 @@
 	                _this3.props.dispatch(uploadFile(e.target.result));
 	                console.log('Successfully uploaded ' + file.name + '!');
 	            });
-	        }
-	    }, {
-	        key: 'readFile',
-	        value: function readFile(event) {
-	            var file = this.ref.file.files[0];
-	            var reader = new FileReader();
-	            reader.onload = function (evt) {
-	                var resultText = evt.target.result;
-	                console.log(resultText);
-	            }.bind(this);
-	            var newFile = file.slice(0, 5000);
-	            reader.readAsText(newFile);
 	        }
 	    }, {
 	        key: 'render',
@@ -44628,145 +44625,6 @@
 /* 298 */
 /***/ (function(module, exports, __webpack_require__) {
 
-	'use strict';
-
-	Object.defineProperty(exports, '__esModule', {
-	  value: true
-	});
-
-	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
-
-	var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-	var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; desc = parent = getter = undefined; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-	function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-	var _react = __webpack_require__(1);
-
-	var _react2 = _interopRequireDefault(_react);
-
-	var _reactDom = __webpack_require__(34);
-
-	var _reactDom2 = _interopRequireDefault(_reactDom);
-
-	var FileInput = (function (_React$Component) {
-	  _inherits(FileInput, _React$Component);
-
-	  _createClass(FileInput, null, [{
-	    key: 'propTypes',
-	    value: {
-	      as: _react2['default'].PropTypes.oneOf(['binary', 'buffer', 'text', 'url']),
-	      children: _react2['default'].PropTypes.any,
-	      onChange: _react2['default'].PropTypes.func
-	    },
-	    enumerable: true
-	  }]);
-
-	  function FileInput(props) {
-	    var _this = this;
-
-	    _classCallCheck(this, FileInput);
-
-	    // FileReader compatibility warning.
-	    _get(Object.getPrototypeOf(FileInput.prototype), 'constructor', this).call(this, props);
-
-	    this.handleChange = function (e) {
-	      var files = [];
-	      for (var i = 0; i < e.target.files.length; i++) {
-	        // Convert to Array.
-	        files.push(e.target.files[i]);
-	      }
-
-	      // Build Promise List, each promise resolved by FileReader.onload.
-	      Promise.all(files.map(function (file) {
-	        return new Promise(function (resolve, reject) {
-	          var reader = new FileReader();
-
-	          reader.onload = function (result) {
-	            // Resolve both the FileReader result and its original file.
-	            resolve([result, file]);
-	          };
-
-	          // Read the file with format based on this.props.as.
-	          switch ((_this.props.as || 'url').toLowerCase()) {
-	            case 'binary':
-	              {
-	                reader.readAsBinaryString(file);
-	                break;
-	              }
-	            case 'buffer':
-	              {
-	                reader.readAsArrayBuffer(file);
-	                break;
-	              }
-	            case 'text':
-	              {
-	                reader.readAsText(file);
-	                break;
-	              }
-	            case 'url':
-	              {
-	                reader.readAsDataURL(file);
-	                break;
-	              }
-	          }
-	        });
-	      })).then(function (zippedResults) {
-	        // Run the callback after all files have been read.
-	        _this.props.onChange(e, zippedResults);
-	      });
-	    };
-
-	    this.triggerInput = function (e) {
-	      _reactDom2['default'].findDOMNode(_this._reactFileReaderInput).click();
-	    };
-
-	    var win = typeof window === 'object' ? window : {};
-	    if (typeof window === 'object' && (!win.File || !win.FileReader || !win.FileList || !win.Blob)) {
-	      console.warn('[react-file-reader-input] Some file APIs detected as not supported.' + ' File reader functionality may not fully work.');
-	    }
-	  }
-
-	  _createClass(FileInput, [{
-	    key: 'render',
-	    value: function render() {
-	      var _this2 = this;
-
-	      var hiddenInputStyle = this.props.children ? {
-	        // If user passes in children, display children and hide input.
-	        position: 'absolute',
-	        top: '-9999px'
-	      } : {};
-
-	      return _react2['default'].createElement(
-	        'div',
-	        { className: '_react-file-reader-input',
-	          onClick: this.triggerInput },
-	        _react2['default'].createElement('input', _extends({}, this.props, { children: undefined, type: 'file',
-	          onChange: this.handleChange, ref: function (c) {
-	            return _this2._reactFileReaderInput = c;
-	          },
-	          style: hiddenInputStyle })),
-	        this.props.children
-	      );
-	    }
-	  }]);
-
-	  return FileInput;
-	})(_react2['default'].Component);
-
-	exports['default'] = FileInput;
-	module.exports = exports['default'];
-
-/***/ }),
-/* 299 */
-/***/ (function(module, exports, __webpack_require__) {
-
 	var React = __webpack_require__(1);
 
 	var FileInput = React.createClass({
@@ -44835,7 +44693,7 @@
 
 
 /***/ }),
-/* 300 */
+/* 299 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -45015,7 +44873,7 @@
 	                });
 	                listItems.push(_react2.default.createElement(
 	                    'li',
-	                    { id: process[i], onClick: this.getProcessInstance.bind(this), className: liClasses },
+	                    { id: process[i], key: process[i], onClick: this.getProcessInstance.bind(this), className: liClasses },
 	                    process[i]
 	                ));
 	            }
@@ -45028,7 +44886,7 @@
 	                        null,
 	                        _react2.default.createElement(
 	                            'li',
-	                            { id: pInstance.ProcessInstanceId, style: divStyle, onClick: _this3.getInstanceLog.bind(_this3), className: 'list-group-item' },
+	                            { id: pInstance.ProcessInstanceId, key: pInstance.ProcessInstanceId, style: divStyle, onClick: _this3.getInstanceLog.bind(_this3), className: 'list-group-item' },
 	                            pInstance.ProcessInstanceId
 	                        )
 	                    ),
@@ -45037,7 +44895,7 @@
 	                        null,
 	                        _react2.default.createElement(
 	                            'li',
-	                            { id: pInstance.StartTime, style: divStyle, className: 'list-group-item' },
+	                            { id: pInstance.StartTime, key: pInstance.StartTime, style: divStyle, className: 'list-group-item' },
 	                            pInstance.StartTime
 	                        )
 	                    ),
@@ -45046,7 +44904,7 @@
 	                        null,
 	                        _react2.default.createElement(
 	                            'li',
-	                            { id: pInstance.EndTime, style: divStyle, className: 'list-group-item' },
+	                            { id: pInstance.EndTime, key: pInstance.EndTime, style: divStyle, className: 'list-group-item' },
 	                            pInstance.EndTime
 	                        )
 	                    )
@@ -45058,7 +44916,7 @@
 	                    null,
 	                    _react2.default.createElement(
 	                        'li',
-	                        { id: pInstance.StartTime, className: 'list-group-item' },
+	                        { id: pInstance.StartTime, key: pInstance.StartTime, className: 'list-group-item' },
 	                        pInstance.StartTime
 	                    )
 	                );

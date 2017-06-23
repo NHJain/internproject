@@ -124,15 +124,15 @@ class ProcessDetails extends Component {
                 'list-group-item': true,
                 'active': this.state.class === process[i]
             });
-            listItems.push(<li id={process[i]} onClick={this.getProcessInstance.bind(this)} className={liClasses}>{process[i]}</li>);
+            listItems.push(<li id={process[i]} key={process[i]} onClick={this.getProcessInstance.bind(this)} className={liClasses}>{process[i]}</li>);
         }
         const ProcessInstances = ProcessInstancesF.map((pInstance) =>
-            <tr><td><li id={pInstance.ProcessInstanceId} style={divStyle} onClick={this.getInstanceLog.bind(this)} className="list-group-item">{pInstance.ProcessInstanceId}</li></td>
-                <td><li id={pInstance.StartTime} style={divStyle} className="list-group-item">{pInstance.StartTime}</li></td>
-                <td><li id={pInstance.EndTime} style={divStyle} className="list-group-item">{pInstance.EndTime}</li></td>
+            <tr><td><li id={pInstance.ProcessInstanceId} key={pInstance.ProcessInstanceId} style={divStyle} onClick={this.getInstanceLog.bind(this)} className="list-group-item">{pInstance.ProcessInstanceId}</li></td>
+                <td><li id={pInstance.StartTime} key={pInstance.StartTime} style={divStyle} className="list-group-item">{pInstance.StartTime}</li></td>
+                <td><li id={pInstance.EndTime} key={pInstance.EndTime} style={divStyle} className="list-group-item">{pInstance.EndTime}</li></td>
             </tr>)
         const ProcessInstancesStartTime = ProcessInstancesF.map((pInstance) =>
-            <td><li id={pInstance.StartTime} className="list-group-item">{pInstance.StartTime}</li></td>)
+            <td><li id={pInstance.StartTime} key={pInstance.StartTime} className="list-group-item">{pInstance.StartTime}</li></td>)
         return (
             <SplitPane split="vertical" minSize={150} defaultSize={445}>
                 <div style={Object.assign({})} >

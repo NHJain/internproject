@@ -68,6 +68,23 @@ class About extends Component {
         var state = this.state;
         state[name] = e.target.value;
         this.setState(state);
+        var data={DataSetName:event.target.key}
+        $.ajax({
+            async: "false",
+            url: "http://localhost:3001/getMetaData",
+            dataType: 'json',
+            data: data,
+            type: 'POST',
+            contentType: 'application/json',
+            success: function (data) {
+                for (var i = 0; i < data.length; i++) {
+                    dataSetList[i] = data[i].Name;
+                }
+                self.setState({ dataSetFlag: true });
+                console.log(dataSetList);
+            }
+        })
+        
     }
     handleDrag(width) {
         if (width >= 300 && width <= 400) {
@@ -87,7 +104,7 @@ class About extends Component {
             console.log(`Successfully uploaded ${file.name}!`);
         });
     }
-    
+
     render() {
         if (this.state.dataSetFlag) {
             var dslist = dataSetList.map((dataSet) =>
