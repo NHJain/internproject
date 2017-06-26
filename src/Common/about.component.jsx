@@ -33,7 +33,7 @@ class About extends Component {
             contentType: 'application/json',
             success: function (data) {
                 for (var i = 0; i < data.length; i++) {
-                    dataSetList[i] = data[i].Name;
+                    dataSetList[i] = data[i].Name + " " + data[i].path;
                 }
                 self.setState({ dataSetFlag: true });
                 console.log(dataSetList);
@@ -68,22 +68,6 @@ class About extends Component {
         var state = this.state;
         state[name] = e.target.value;
         this.setState(state);
-        var data={DataSetName:event.target.key}
-        $.ajax({
-            async: "false",
-            url: "http://localhost:3001/getDataSetList",
-            dataType: 'json',
-            data: data,
-            type: 'POST',
-            contentType: 'application/json',
-            success: function (data) {
-                for (var i = 0; i < data.length; i++) {
-                    dataSetList[i] = data[i].Name;
-                }
-                self.setState({ dataSetFlag: true });
-                console.log(dataSetList);
-            }
-        })
         
     }
     handleDrag(width) {
