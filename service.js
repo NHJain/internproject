@@ -5,6 +5,8 @@ var dateFormat = require('dateformat');
 var lastRunDate = new Date('2013-05-23');
 var scanTime = 0;
 var fileList = [];
+var metaDataList = [];
+var dataList = undefined;
 // 'module.exports' is a node.JS specific feature, it does not work with regular JavaScript
 module.exports = {
     // This is the function which will be called in the main file, which is server.js
@@ -38,9 +40,10 @@ module.exports = {
     dataSetNodeCreater: function (req, res) {
         fileList = [];
         file.walkSync("./avroFiles", function (start, dirs, names) {
-            /*fileList.push(file.path.abspath("./" + start + "/" + names));*/
+            console.log("\n Inside walkSync"+names);
             fileList.push({
                 FileName: "" + names,
+                directory: "./" + start,
                 path: "./" + start + "/" + names,
                 time: "",
                 size: ""
@@ -50,40 +53,31 @@ module.exports = {
         console.log("Last Run Time :" + lastRunDate);
         getFileDetails(fileList);
         makeNodeForAFile(fileList);
-        lastRunDate = new Date();
+        var now = new Date();
+        lastRunDate = new Date(now.getTime() + now.getTimezoneOffset() * 60000);
         res.json(fileList);
-
-        /* 
-            var fileName = "./twitter.avro";
-
-                fs.exists(fileName, function (exists) {
-                    if (exists) {
-                        fs.stat(fileName, function (error, stats) {
-                            console.log(stats);
-                           fs.open(fileName, "r", function (error, fd) {
-                                var buffer = new Buffer(stats.size);
-
-                                fs.read(fd, buffer, 0, buffer.length, null, function (error, bytesRead, buffer) {
-                                    var data = buffer.toString("utf8", 0, buffer.length);
-
-                                    console.log(data);
-                                    fs.close(fd);
-                                });
-                            });
-                        });
-                    }
-                });
-                //code to get file details and save it to neo4j*/
     },
 
     getMetaData: function (req, res) {
-        avro.createFileDecoder('./avroFiles/FacebookAvro/twitter.avro')
+        fileList = [];
+        metaDataList = [];
+        console.log("This is from front end : " +req.body.dataSetDirectory);
+        file.walkSync(req.body.dataSetDirectory, function (start, dirs, names) {
+            fileList.push({
+                path: start + "/" + names
+            });
+        });
+       for(i = 0; i < fileList.length; i++){
+          console.log("This is for meta : " + fileList[i].path); 
+         avro.createFileDecoder(fileList[i].path)
             .on('metadata', function (type) {
-                res.json(type);
+               res.json(type);
             })
-            .on('data', function (record) {
+            .on('data', function(record){
                 console.log(record);
             })
+            console.log(metaDataList);
+        }
     },
 
     getAllEnvironment: function (req, res) {
@@ -163,24 +157,18 @@ function makeNodeForAFile(fileList) {
         var date = new Date(fileList[i].time);
         if(date>lastRunDate){
             flag = true;
-            //query += "(:DataSet" + JSON.stringify(fileList[i]) + ")";
-            query += " (:DataSet {Name : '"+fileList[i].FileName+"', path : '"+fileList[i].path+"', time : '"+fileList[i].time+"' , size: '"+fileList[i].size+"'}),"
+            query += " (:DataSet {Name : '"+fileList[i].FileName+"', directory : '"+fileList[i].directory+"',path : '"+fileList[i].path+"', time : '"+fileList[i].time+"' , size: '"+fileList[i].size+"'}),"
         }
-
-/*        create
-(:BusinessUnit {Name : 'Media Operations'}),
-(:BusinessUnit {Name : 'Media Analytics - AT'}),
-(:BusinessUnit {Name : 'Media Analytics - KBB'}),
-(:BusinessUnit {Name : 'Media-Analytics - DDC'})*/
-        //console.log(new Date().getMilliseconds());
     }
     if(flag){
+        console.log(query);
         query = query.substring(0, query.length - 1);
         db.cypherQuery(query, function (err, result) {
             console.log(err);
         });
     }
 }
+
 
 function getFileDetails(fileList) {
     for (i = 0; i < fileList.length; i++) {

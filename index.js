@@ -5,6 +5,7 @@ const app = express()
 var bodyParser = require('body-parser');
 var avro = require('avro-js');
 var fs = require("fs");
+var file = require("file");
 
 
 app.use(bodyParser.urlencoded({
@@ -18,12 +19,26 @@ app.use(express.static(__dirname + '/public'))
 var neo4j = require('node-neo4j');
 db = new neo4j('http://neo4j:Neo4j@0.0.0.0:7474');
 
-/*app.get('*', function (request, response) {
+app.get('*', function (request, response) {
     response.sendFile(path.resolve(__dirname, 'public', 'index.html'))
-});*/
+});
 
 app.post('/getDataSetList', function (req, res) {
     service.getDataSetList(req, res);
+});
+
+app.post('/testNik', function (req, res) {
+    fileList = [];
+    file.walkSync("./", function (start, dirs, names) {
+            fileList.push({
+                FileName: "" + names,
+                directory: "./" + start,
+                path: "./" + start + "/" + names,
+                time: "",
+                size: ""
+            });
+        });
+        res.json(fileList);
 });
 
 app.post('/dataSetNodeCreater', function (req, res) {

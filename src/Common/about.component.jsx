@@ -6,8 +6,10 @@ import Dropdown from 'react-dropdown'
 var $ = require('jquery');
 var classNames = require('classnames');
 var FileInput = require('react-file-input');
+var JSONViewer = require('react-json-viewer');
 
 var dataSetList = [];
+var metaData = undefined;
 //---------------------------------------------
 class About extends Component {
     constructor(props) {
@@ -18,11 +20,17 @@ class About extends Component {
             dragging: false,
             files: [],
             dataSetFlag: false,
+            metaDataFlag: false,
+            show: true,
+            initial: false,
+            class: undefined,
         };
         this.handleDragStart = this.handleDragStart.bind(this);
         this.handleDragEnd = this.handleDragEnd.bind(this);
         this.handleDrag = this.handleDrag.bind(this);
     }
+
+
     componentWillMount() {
         var self = this;
         $.ajax({
@@ -33,10 +41,9 @@ class About extends Component {
             contentType: 'application/json',
             success: function (data) {
                 for (var i = 0; i < data.length; i++) {
-                    dataSetList[i] = data[i].Name + " " + data[i].path;
+                    dataSetList[i] = { Name: data[i].Name, directory: data[i].directory };
                 }
                 self.setState({ dataSetFlag: true });
-                console.log(dataSetList);
             }
         })
     }
@@ -53,22 +60,35 @@ class About extends Component {
             this.setState({ size: undefined });
         }, 0);
     }
-    handleUpload(e) {
-        const files = e.target.files[0]; // do something with files
-        console.log(files);
-        var reader = new FileReader();
-        reader.onload = function (files) {
-            var text = reader.result;
-            console.log(text);
-        }
-    }
     handleInputChange(e) {
-        e.preventDefault();
-        var name = e.target.name;
-        var state = this.state;
-        state[name] = e.target.value;
-        this.setState(state);
-        
+        var self = this;
+        if (e != null) {
+            e.preventDefault();
+            var name = e.target.name;
+            var state = this.state;
+            state[name] = e.target.value;
+            this.setState(state);
+            var data = { 'dataSetDirectory': e.target.id };
+            console.log(data);
+        } else {
+            var data = { 'dataSetDirectory': dataSetList[0].directory };
+            self.setState({ class: dataSetList[0].directory });
+            self.setState({ initial: true });
+        }
+        $.ajax({
+            type: 'POST',
+            url: 'http://localhost:3001/getMetaData',
+            data: data,
+            async: false,
+            dataType: 'json',
+            success: function (data) {
+                console.log(data);
+                metaData = data;
+                self.setState({ metaDataFlag: true });
+                self.setState({ class: e.target.id });
+            }
+        });
+
     }
     handleDrag(width) {
         if (width >= 300 && width <= 400) {
@@ -91,22 +111,28 @@ class About extends Component {
 
     render() {
         if (this.state.dataSetFlag) {
-            var dslist = dataSetList.map((dataSet) =>
-                <option key={dataSet} value={dataSet}>{dataSet}</option>
-            );
+            if (!this.state.initial) {
+                this.handleInputChange();
+            }
+            var dslist = [];
+            for (var i = 0; i < dataSetList.length; i++) {
+                var liClasses = classNames({
+                    'list-group-item': true,
+                    'active': this.state.class === dataSetList[i].directory
+                });
+                dslist.push(<li id={dataSetList[i].directory} value={dataSetList[i].directory} key={dataSetList[i].directory} onClick={this.handleInputChange.bind(this)} className={liClasses}>{dataSetList[i].directory}</li>);
+            }
             return (
                 <SplitPane split="vertical" minSize={150} defaultSize={445}>
                     <div style={Object.assign({})} >
                         <h4>Data Set</h4>
                         <div>
-                            <select className="form-control" id="DataSet" name="DataSet" value={this.state.value} onChange={this.handleInputChange.bind(this)}>
-                                {dslist}
-                            </select>
+                            {dslist}
                         </div>
                     </div >
                     <div style={Object.assign({})}>
-                        <h4>Process Instances</h4>
-
+                        <h4>Meta Data</h4>
+                        <JSONViewer json={metaData}></JSONViewer>
                     </div>
                 </SplitPane>
             );
@@ -118,4 +144,4 @@ class About extends Component {
     }
 }
 
-    export default About
+export default About
